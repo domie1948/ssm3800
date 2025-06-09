@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JianchaDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.jiancha_name as jianchaName
+        ,a.jiancha_types as jianchaTypes
+        ,a.jiancha_content as jianchaContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JianchaView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_age as yonghuAge
+        ,yonghu.jiashu_name as jiashuName
+        ,yonghu.jiashu_phone as jiashuPhone
+
+        FROM jiancha  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.jianchaName != '' and params.jianchaName != null and params.jianchaName != 'null' ">
+                and a.jiancha_name like CONCAT('%',#{params.jianchaName},'%')
+            </if>
+            <if test="params.jianchaTypes != null">
+                and a.jiancha_types = #{params.jianchaTypes}
+            </if>
+            <if test=" params.jianchaContent != '' and params.jianchaContent != null and params.jianchaContent != 'null' ">
+                and a.jiancha_content like CONCAT('%',#{params.jianchaContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test="params.yonghuAgeStart != null ">
+                <![CDATA[  and yonghu.yonghu_age >= #{params.yonghuAgeStart}   ]]>
+            </if>
+            <if test="params.yonghuAgeEnd != null ">
+                <![CDATA[  and yonghu.yonghu_age <= #{params.yonghuAgeEnd}   ]]>
+            </if>
+            <if test=" params.jiashuName != '' and params.jiashuName != null and params.jiashuName != 'null' ">
+                and yonghu.jiashu_name like CONCAT('%',#{params.jiashuName},'%')
+            </if>
+            <if test=" params.jiashuPhone != '' and params.jiashuPhone != null and params.jiashuPhone != 'null' ">
+                and yonghu.jiashu_phone like CONCAT('%',#{params.jiashuPhone},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
